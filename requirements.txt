@@ -1,0 +1,7 @@
+functions-framework==3.*
+requests>=2.25.0
+google-api-python-client>=2.0.0
+google-auth>=1.16.0
+Flask==3.0.3
+gunicorn==22.0.0
+Werkzeug==3.0.3

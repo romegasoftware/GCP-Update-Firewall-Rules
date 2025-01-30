@@ -1,0 +1,30 @@
+{
+    "configs": [
+        {
+            "rule_name": "allow-ssh-laravel-forge",
+            "description": "Allow SSH from Laravel Forge IPs",
+            "endpoint_url": "https://forge.laravel.com/ips-v4.txt",
+            "allowed": [
+                {
+                    "IPProtocol": "tcp",
+                    "ports": [
+                        "22"
+                    ]
+                }
+            ]
+        },
+        {
+            "rule_name": "allow-ssh-laravel-envoyer",
+            "description": "Allow SSH from Laravel Envoyer IPs",
+            "endpoint_url": "https://envoyer.io/ips-v4.txt",
+            "allowed": [
+                {
+                    "IPProtocol": "tcp",
+                    "ports": [
+                        "22"
+                    ]
+                }
+            ]
+        }
+    ]
+}
