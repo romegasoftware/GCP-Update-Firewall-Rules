@@ -1,8 +1,8 @@
 # GCP: Update Firewall Rules Across Multiple Projects
 
-This is a Cloud Run that will update firewall rules across multiple projects in your organization.
+This Cloud Run will update firewall rules across multiple projects in your organization. This project is meant to be deployed and to manage Google Cloud and manage firewall rules for 3rd party services that publish their IP whitelisting requirements as an endpoint with each IP on a new line ([for example](https://envoyer.io/ips-v4.txt)). It will run on a configurable cron schedule to keep your firewall rules up to date.
 
-It receives a JSON payload with the following structure:
+Once deployed as a Cloud Run, it can receive a JSON payload with the following structure:
 
 ```json
 {
@@ -37,14 +37,14 @@ It receives a JSON payload with the following structure:
 }
 ```
 
-- `rule_name` is the name of the firewall rule you want to update.
+- `rule_name` is the name of the firewall rule you want to create or update.
 - `description` is the description of the firewall rule you want to update.
-- `endpoint_url` is the URL of the endpoint that will provide the IP addresses to allow.
+- `endpoint_url` is the endpoint URL that will provide the IP addresses to allow.
 - `allowed` is the list of allowed protocols and ports.
 
 If it does not find an existing firewall that matches the `rule_name`, it will create one.
 
-If it finds an existing rule with the same `rule_name`, it will check to make sure its `allowed` defintion still matches, and that the IP endpoints are the same. If not, it will update the firewall rule.
+If it finds an existing rule with the same `rule_name`, it will check to ensure its `allowed` definition still matches and that the IP endpoints are the same. If not, it will update the firewall rule.
 
 # Setup
 
@@ -75,7 +75,7 @@ gcloud organizations add-iam-policy-binding {ORGANIZATION_ID} \
 
 ## Add IAM Policy Binding for Cloud Run Invoker
 
-You may add this permission to the project level instead if you wish to limit the scope of access. If you prefer, you can alternatively still utilize the `ORGANIZATION_ID` instead of a `PROJECT_ID`. The `PROJECT_ID` is the ID of the project that the Cloud Run Function will be deployed to in the next step.
+You may add this permission to the project level instead if you wish to limit the scope of access. Alternatively, you can still utilize the `ORGANIZATION_ID` instead of a `PROJECT_ID`. The `PROJECT_ID` is the ID of the project to which the Cloud Run Function will be deployed in the next step.
 
 ```bash
 gcloud projects add-iam-policy-binding {PROJECT_ID} \
@@ -85,7 +85,7 @@ gcloud projects add-iam-policy-binding {PROJECT_ID} \
 
 ## Setup Cloud Run Function
 
-This step will create the Cloud Run Function and use the source code from the current directory as its source. You may skip this step if you wish to manually add the function to the project.
+This step will create the Cloud Run Function and use the source code from the current directory as its source. You can go ahead and skip this step if you'd like to manually add the function to the project.
 
 ```bash
 gcloud run deploy cr-firewall-update \
@@ -100,7 +100,7 @@ This will output the URL of the Cloud Run Function Service URL. Use this in the 
 
 ### Manually Adding The Cloud Run
 
-These are the steps to manually add the function to the project, if you choose to not do the automated setup in the previous step:
+These are the steps to manually add the function to the project if you choose not to do the automated setup in the previous step:
 
 - Setup a Python 3.12 runtime.
 - Add the contents of `main.py` to the function.
@@ -109,7 +109,7 @@ These are the steps to manually add the function to the project, if you choose t
 
 ## Setup Cloud Scheduler
 
-Run this command to create a Cloud Scheduler job that will run the function at 12:00 AM EST on the first day of every month. Adjust the cron schedule as needed. It will configure the body of the request to be the contents of `payload.json`. Update that payload as needed prior to running the command.
+Run this command to create a Cloud Scheduler job that will run the function at 12:00 AM EST on the first day of every month. Adjust the cron schedule as needed. It will configure the request's body to be the contents of `payload.json`. Please update that payload as needed before running the command.
 
 ```bash
 gcloud scheduler jobs create http cr-firewall-update \
