@@ -59,17 +59,26 @@ def update_firewall_for_all_projects(request):
     rule_ips_map = {}
     for cfg in configs:
         rule_name = cfg["rule_name"]
-        endpoint_url = cfg["endpoint_url"]
-        print(f"Fetching IPs for rule '{rule_name}' from {endpoint_url}")
 
-        resp = requests.get(endpoint_url)
-        resp.raise_for_status()
+        # Check if endpoint_url exists, it takes precedence
+        if "endpoint_url" in cfg:
+            endpoint_url = cfg["endpoint_url"]
+            print(f"Fetching IPs for rule '{rule_name}' from {endpoint_url}")
 
-        ip_list = resp.text.strip().split()
-        ip_list = [ip.strip() for ip in ip_list if ip.strip()]
+            resp = requests.get(endpoint_url)
+            resp.raise_for_status()
+
+            ip_list = resp.text.strip().split()
+            ip_list = [ip.strip() for ip in ip_list if ip.strip()]
+        # If no endpoint_url, use ip_list if provided
+        elif "ip_list" in cfg:
+            ip_list = cfg["ip_list"]
+            print(f"Using provided IP list for rule '{rule_name}'")
+        else:
+            return f"Neither endpoint_url nor ip_list provided for rule '{rule_name}'", 400
 
         rule_ips_map[rule_name] = ip_list
-        print(f"  -> Retrieved {len(ip_list)} IP(s): {ip_list}")
+        print(f"  -> Using {len(ip_list)} IP(s): {ip_list}")
 
     # 5) List all active projects in this organization
     filter_str = f"lifecycleState:ACTIVE parent.type:organization parent.id={org_id}"
